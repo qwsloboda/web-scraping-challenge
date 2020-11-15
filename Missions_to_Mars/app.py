@@ -6,7 +6,8 @@ import scrape_costa
 app = Flask(__name__)
 
 # Use PyMongo to establish Mongo connection
-mongo = PyMongo(app, uri="mongodb://localhost:27017/weather_app")
+app.config["MONGO_URI"] = "mongodb://localhost:27017/mars_app"
+mongo = PyMongo(app)
 
 
 # Route to render index.html template using data from Mongo
@@ -14,10 +15,10 @@ mongo = PyMongo(app, uri="mongodb://localhost:27017/weather_app")
 def home():
 
     # Find one record of data from the mongo database
-    destination_data = mongo.db.collection.find_one()
+    mars_info = mongo.db.mars.find_one()
 
     # Return template and data
-    return render_template("index.html", vacation=destination_data)
+    return render_template("index.html", mars_info=mars_info)
 
 
 # Route that will trigger the scrape function
@@ -25,7 +26,12 @@ def home():
 def scrape():
 
     # Run the scrape function
-    costa_data = scrape_costa.scrape_info()
+    mars_info = mongo.db.mars_info
+    mars_data = scrape_mars.scrape_mars_news()
+    mars_data = scrape_mars.scrape_mars_image()
+    mars_data = scrape_mars.scrape_mars_facts()
+    mars_data = scrape_mars.scrape_mars_weather()
+    mars_data = scrape_mars.scrape_mars_hemispheres()
 
     # Update the Mongo database using update and upsert=True
     mongo.db.collection.update({}, costa_data, upsert=True)
